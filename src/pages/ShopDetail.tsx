@@ -1,20 +1,22 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout";
 import { useShopBySlug, useShopFollow } from "@/hooks/useShops";
 import { supabase } from "@/integrations/supabase/untyped-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ListingCard } from "@/components/listings/ListingCard";
+import { ListingForm } from "@/components/dashboard/ListingForm";
+import { ShopProfileEditor } from "@/components/shops/ShopProfileEditor";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   MapPin, Star, Users, Eye, UserPlus, UserMinus, Package,
   Sparkles, Calendar, Loader2, MessageCircle, Store, CheckCircle,
-  Crown, Phone, Mail, Plus, Share2
+  Crown, Phone, Mail, Plus, Settings, Pencil
 } from "lucide-react";
 import { FaWhatsapp, FaFacebook, FaInstagram, FaXTwitter, FaTiktok, FaYoutube, FaLinkedin, FaTelegram } from "react-icons/fa6";
 import { format } from "date-fns";
@@ -47,7 +49,7 @@ interface Review {
 
 export default function ShopDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const { shop, isLoading: shopLoading } = useShopBySlug(slug);
+  const { shop, isLoading: shopLoading, refetch: refetchShop } = useShopBySlug(slug);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -61,22 +63,27 @@ export default function ShopDetail() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [tab, setTab] = useState("products");
   const [followersCount, setFollowersCount] = useState(0);
+  const [showListingForm, setShowListingForm] = useState(false);
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
 
   const isOwner = user?.id === shop?.user_id;
+
+  const fetchListings = async () => {
+    if (!shop) return;
+    const { data } = await supabase
+      .from("listings_public")
+      .select("id, title, price, original_price, images, location, listing_type, is_sponsored, is_featured, is_free, favorites_count, event_date")
+      .eq("shop_id", shop.id)
+      .eq("status", "available")
+      .order("created_at", { ascending: false });
+    setListings((data as ShopListing[]) || []);
+    setListingsLoading(false);
+  };
 
   useEffect(() => {
     if (!shop) return;
     setFollowersCount(shop.followers_count || 0);
-    const fetchListings = async () => {
-      const { data } = await supabase
-        .from("listings_public")
-        .select("id, title, price, original_price, images, location, listing_type, is_sponsored, is_featured, is_free, favorites_count, event_date")
-        .eq("shop_id", shop.id)
-        .eq("status", "available")
-        .order("created_at", { ascending: false });
-      setListings((data as ShopListing[]) || []);
-      setListingsLoading(false);
-    };
+    fetchListings();
     const fetchReviews = async () => {
       const { data } = await supabase
         .from("shop_reviews")
@@ -99,7 +106,6 @@ export default function ShopDetail() {
         );
       }
     };
-    fetchListings();
     fetchReviews();
     supabase.from("shops").update({ views_count: (shop.views_count || 0) + 1 }).eq("id", shop.id);
   }, [shop]);
@@ -171,32 +177,32 @@ export default function ShopDetail() {
 
   if (shopLoading) {
     return (
-      <Layout>
+      <div className="min-h-screen bg-background">
         <div className="container py-8 space-y-6">
           <Skeleton className="h-48 w-full rounded-2xl" />
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-96" />
         </div>
-      </Layout>
+      </div>
     );
   }
 
   if (!shop) {
     return (
-      <Layout>
+      <div className="min-h-screen bg-background">
         <div className="container py-16 text-center">
           <Store className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Shop Not Found</h1>
           <p className="text-muted-foreground mb-4">This shop doesn't exist or has been deactivated.</p>
           <Button asChild><Link to="/shops">Browse Shops</Link></Button>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Standalone shop header - no main site navbar */}
+      {/* Standalone shop header */}
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur border-b">
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
@@ -214,15 +220,19 @@ export default function ShopDetail() {
           </div>
           <div className="flex items-center gap-2">
             {isOwner && (
-              <Button size="sm" onClick={() => navigate("/dashboard")} className="gap-1">
-                <Plus className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Add Listing</span>
-              </Button>
+              <>
+                <Button size="sm" onClick={() => setShowListingForm(true)} className="gap-1">
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Add Listing</span>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setShowProfileEditor(true)} className="gap-1">
+                  <Settings className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Edit Shop</span>
+                </Button>
+              </>
             )}
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/shops">
-                <Store className="h-4 w-4" />
-              </Link>
+              <Link to="/shops"><Store className="h-4 w-4" /></Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/">Home</Link>
@@ -239,18 +249,36 @@ export default function ShopDetail() {
           <div className="w-full h-full bg-gradient-to-br from-primary/40 via-accent/20 to-secondary/30" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+        {isOwner && (
+          <button
+            onClick={() => setShowProfileEditor(true)}
+            className="absolute top-3 right-3 p-2 rounded-full bg-background/70 backdrop-blur hover:bg-background/90 transition-colors"
+            title="Edit cover image"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       <div className="container relative -mt-20 pb-12">
         {/* Shop Header */}
         <div className="flex flex-col md:flex-row gap-5 items-start mb-6">
-          <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl border-4 border-card bg-card overflow-hidden shadow-lg shrink-0">
+          <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl border-4 border-card bg-card overflow-hidden shadow-lg shrink-0">
             {shop.logo_url ? (
               <img src={shop.logo_url} alt={shop.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-bold text-4xl">
                 {shop.name.charAt(0)}
               </div>
+            )}
+            {isOwner && (
+              <button
+                onClick={() => setShowProfileEditor(true)}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity"
+                title="Edit logo"
+              >
+                <Pencil className="h-5 w-5 text-white" />
+              </button>
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -296,7 +324,7 @@ export default function ShopDetail() {
                 </Button>
               )}
               {isOwner && (
-                <Button size="sm" variant="default" onClick={() => navigate("/dashboard")} className="gap-1">
+                <Button size="sm" variant="default" onClick={() => setShowListingForm(true)} className="gap-1">
                   <Plus className="h-4 w-4" />Add Listing
                 </Button>
               )}
@@ -357,7 +385,7 @@ export default function ShopDetail() {
                   {isOwner ? (
                     <div>
                       <p className="mb-3">No {t} in your shop yet</p>
-                      <Button onClick={() => navigate("/dashboard")} className="gap-1">
+                      <Button onClick={() => setShowListingForm(true)} className="gap-1">
                         <Plus className="h-4 w-4" />Add Your First Listing
                       </Button>
                     </div>
@@ -426,12 +454,47 @@ export default function ShopDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Add Listing Dialog */}
+      <Dialog open={showListingForm} onOpenChange={setShowListingForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Listing to {shop.name}</DialogTitle>
+          </DialogHeader>
+          <ListingForm
+            shopId={shop.id}
+            onSuccess={() => {
+              setShowListingForm(false);
+              fetchListings();
+            }}
+            onCancel={() => setShowListingForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Shop Profile Dialog */}
+      <Dialog open={showProfileEditor} onOpenChange={setShowProfileEditor}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Shop Profile</DialogTitle>
+          </DialogHeader>
+          <ShopProfileEditor
+            shop={shop}
+            onSuccess={() => {
+              setShowProfileEditor(false);
+              refetchShop();
+            }}
+            onCancel={() => setShowProfileEditor(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 function ShopAdsBanner({ shopId }: { shopId: string }) {
   const [ads, setAds] = useState<Array<{ id: string; title: string; description: string | null; image_url: string | null; link_url: string | null }>>([]);
+  const [selectedAd, setSelectedAd] = useState<typeof ads[0] | null>(null);
 
   useEffect(() => {
     supabase
@@ -447,29 +510,54 @@ function ShopAdsBanner({ shopId }: { shopId: string }) {
   if (ads.length === 0) return null;
 
   return (
-    <div className="mb-6 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-      {ads.map((ad) => (
-        <a
-          key={ad.id}
-          href={ad.link_url || "#"}
-          target={ad.link_url ? "_blank" : undefined}
-          rel="noopener noreferrer"
-          className="block rounded-xl overflow-hidden border hover:shadow-md transition-shadow"
-        >
-          {ad.image_url && (
-            <img src={ad.image_url} alt={ad.title} className="w-full aspect-[4/3] object-cover" />
-          )}
-          <div className="p-2">
-            <div className="flex items-center gap-1">
-              <Badge variant="secondary" className="text-[10px]">Sponsored</Badge>
-              <p className="font-medium text-xs line-clamp-1">{ad.title}</p>
-            </div>
-            {ad.description && (
-              <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{ad.description}</p>
+    <>
+      <div className="mb-6 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        {ads.map((ad) => (
+          <button
+            key={ad.id}
+            onClick={() => setSelectedAd(ad)}
+            className="block rounded-xl overflow-hidden border hover:shadow-md transition-shadow text-left bg-card"
+          >
+            {ad.image_url && (
+              <img src={ad.image_url} alt={ad.title} className="w-full aspect-[4/3] object-cover" />
             )}
-          </div>
-        </a>
-      ))}
-    </div>
+            <div className="p-2">
+              <div className="flex items-center gap-1">
+                <Badge variant="secondary" className="text-[10px] shrink-0">Ad</Badge>
+                <p className="font-medium text-xs line-clamp-1">{ad.title}</p>
+              </div>
+              {ad.description && (
+                <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{ad.description}</p>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Ad Detail Dialog */}
+      <Dialog open={!!selectedAd} onOpenChange={() => setSelectedAd(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">Sponsored</Badge>
+              {selectedAd?.title}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedAd?.image_url && (
+            <img src={selectedAd.image_url} alt={selectedAd.title} className="w-full rounded-lg object-cover max-h-80" />
+          )}
+          {selectedAd?.description && (
+            <p className="text-sm text-muted-foreground">{selectedAd.description}</p>
+          )}
+          {selectedAd?.link_url && (
+            <Button asChild className="w-full">
+              <a href={selectedAd.link_url} target="_blank" rel="noopener noreferrer">
+                Visit Link
+              </a>
+            </Button>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
