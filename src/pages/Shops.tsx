@@ -84,7 +84,19 @@ export default function Shops() {
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {filtered.map((shop) => (
-              <ShopCard key={shop.id} shop={shop} />
+              <div key={shop.id} className="featured-shop-card">
+                {/* Scrolling welcome banner at top of each card */}
+                <div className="overflow-hidden bg-foreground/5 rounded-t-xl">
+                  <div className="featured-shops-welcome whitespace-nowrap text-[10px] sm:text-xs font-medium text-primary py-1 px-2">
+                    <span>
+                      ✨ Welcome to {shop.name}! {shop.description ? `— ${shop.description}` : "Explore amazing products & services"} ✨
+                      &nbsp;&nbsp;&nbsp;&nbsp;
+                      ✨ Welcome to {shop.name}! {shop.description ? `— ${shop.description}` : "Explore amazing products & services"} ✨
+                    </span>
+                  </div>
+                </div>
+                <ShopCard shop={shop} />
+              </div>
             ))}
           </div>
         ) : (
