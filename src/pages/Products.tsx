@@ -5,7 +5,8 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Grid3X3, LayoutGrid, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, Grid3X3, LayoutGrid, Loader2, Sparkles } from "lucide-react";
+import "@/styles/featured-shops.css";
 import { useListings } from "@/hooks/useListings";
 
 const categories = [
@@ -37,9 +38,33 @@ export default function Products() {
       <div className="bg-muted/30 border-b">
         <div className="container py-8">
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">Products</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-4">
             Discover amazing products from trusted sellers across Kenya
           </p>
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 py-2.5 px-4">
+            <div className="flex items-center gap-3">
+              <span className="featured-shops-blink shrink-0 inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <Sparkles className="h-3 w-3" />
+                New
+              </span>
+              <div className="overflow-hidden flex-1">
+                <div className="featured-shops-marquee whitespace-nowrap text-sm font-medium text-foreground/80">
+                  {"🛍️ List your products for FREE on SokoniArena! " +
+                    "✅ Reach thousands of buyers across Kenya instantly " +
+                    "✅ Promote your listing for 5× more visibility " +
+                    "✅ Create your own branded shop with a unique URL " +
+                    "✅ Get verified for extra trust & priority placement " +
+                    "🚀 Go to Dashboard → Add Listing to start selling! " +
+                    "🛍️ List your products for FREE on SokoniArena! " +
+                    "✅ Reach thousands of buyers across Kenya instantly " +
+                    "✅ Promote your listing for 5× more visibility " +
+                    "✅ Create your own branded shop with a unique URL " +
+                    "✅ Get verified for extra trust & priority placement " +
+                    "🚀 Go to Dashboard → Add Listing to start selling! "}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

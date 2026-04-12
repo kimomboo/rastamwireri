@@ -1,4 +1,5 @@
-import { Shield, Users, MapPin, BadgeCheck, MessageCircle, Lock } from "lucide-react";
+import { Shield, Users, MapPin, BadgeCheck, MessageCircle, Lock, Sparkles } from "lucide-react";
+import "@/styles/featured-shops.css";
 
 const trustFeatures = [
   {
@@ -38,7 +39,7 @@ export function TrustSection() {
     <section className="py-16 md:py-20">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-brand-light text-primary text-sm font-medium mb-4">
             <Shield className="h-4 w-4" />
             Trust & Safety
@@ -50,6 +51,34 @@ export function TrustSection() {
             We've built Sokoni Arena with safety and trust at its core. 
             Here's how we keep our community secure.
           </p>
+        </div>
+
+        {/* Marquee ad banner */}
+        <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-green-brand-light/30 to-primary/10 border border-primary/20 py-2.5 px-4">
+          <div className="flex items-center gap-3">
+            <span className="featured-shops-blink shrink-0 inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <Sparkles className="h-3 w-3" />
+              Safe
+            </span>
+            <div className="overflow-hidden flex-1">
+              <div className="featured-shops-marquee whitespace-nowrap text-sm font-medium text-foreground/80">
+                {"🔒 Your safety is our priority on SokoniArena! " +
+                  "✅ All sellers are email-verified for authenticity " +
+                  "✅ Enterprise-grade security protects your data " +
+                  "✅ Chat directly with sellers — no middlemen " +
+                  "✅ Report suspicious activity & we act fast " +
+                  "✅ Your personal info is never shared without consent " +
+                  "🛡️ Shop with confidence — SokoniArena is trusted by thousands across Kenya! " +
+                  "🔒 Your safety is our priority on SokoniArena! " +
+                  "✅ All sellers are email-verified for authenticity " +
+                  "✅ Enterprise-grade security protects your data " +
+                  "✅ Chat directly with sellers — no middlemen " +
+                  "✅ Report suspicious activity & we act fast " +
+                  "✅ Your personal info is never shared without consent " +
+                  "🛡️ Shop with confidence — SokoniArena is trusted by thousands across Kenya! "}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Features Grid */}

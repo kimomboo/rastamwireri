@@ -5,7 +5,8 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, Sparkles } from "lucide-react";
+import "@/styles/featured-shops.css";
 import { useListings } from "@/hooks/useListings";
 
 const categories = [
@@ -37,9 +38,33 @@ export default function Services() {
       <div className="bg-gradient-purple text-white">
         <div className="container py-12">
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">Services</h1>
-          <p className="text-white/80">
+          <p className="text-white/80 mb-4">
             Find skilled professionals and service providers near you
           </p>
+          <div className="relative overflow-hidden rounded-xl bg-white/10 border border-white/20 py-2.5 px-4">
+            <div className="flex items-center gap-3">
+              <span className="featured-shops-blink shrink-0 inline-flex items-center gap-1 bg-white text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <Sparkles className="h-3 w-3" />
+                New
+              </span>
+              <div className="overflow-hidden flex-1">
+                <div className="featured-shops-marquee whitespace-nowrap text-sm font-medium text-white/90">
+                  {"🔧 Offer your services on SokoniArena — it's FREE! " +
+                    "✅ Get discovered by thousands of clients near you " +
+                    "✅ Build your reputation with reviews & verified badges " +
+                    "✅ Create a branded shop to showcase all your services " +
+                    "✅ Promote your listing for priority placement " +
+                    "🚀 Go to Dashboard → Add Listing → Service to get started! " +
+                    "🔧 Offer your services on SokoniArena — it's FREE! " +
+                    "✅ Get discovered by thousands of clients near you " +
+                    "✅ Build your reputation with reviews & verified badges " +
+                    "✅ Create a branded shop to showcase all your services " +
+                    "✅ Promote your listing for priority placement " +
+                    "🚀 Go to Dashboard → Add Listing → Service to get started! "}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

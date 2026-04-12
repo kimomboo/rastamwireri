@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { parseImages } from "@/lib/utils";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, ShoppingBag } from "lucide-react";
+import "@/styles/featured-shops.css";
 import { Button } from "@/components/ui/button";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -110,11 +111,14 @@ export const FeaturedListings = memo(function FeaturedListings() {
         )}
 
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
           <div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
-              Featured Listings
-            </h2>
+            <div className="flex items-center gap-2 mb-2">
+              <ShoppingBag className="h-6 w-6 text-primary" />
+              <h2 className="font-display text-3xl md:text-4xl font-bold">
+                Featured Listings
+              </h2>
+            </div>
             <p className="text-muted-foreground text-lg">
               Discover the best deals from trusted sellers
             </p>
@@ -125,6 +129,34 @@ export const FeaturedListings = memo(function FeaturedListings() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
+        </div>
+
+        {/* Marquee ad banner */}
+        <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 py-2.5 px-4">
+          <div className="flex items-center gap-3">
+            <span className="featured-shops-blink shrink-0 inline-flex items-center gap-1 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <Sparkles className="h-3 w-3" />
+              Deals
+            </span>
+            <div className="overflow-hidden flex-1">
+              <div className="featured-shops-marquee whitespace-nowrap text-sm font-medium text-foreground/80">
+                {"🔥 Hot deals updated daily on SokoniArena! " +
+                  "✅ Post your listing for FREE — reach thousands of buyers instantly " +
+                  "✅ Promote your ad to get 5× more views & sell faster " +
+                  "✅ Verified sellers get priority placement in search results " +
+                  "✅ Open your branded shop for a unique storefront experience " +
+                  "🚀 Go to Dashboard → Add Listing to start selling now! " +
+                  "💰 No hidden fees — list, promote & sell with zero commission! " +
+                  "🔥 Hot deals updated daily on SokoniArena! " +
+                  "✅ Post your listing for FREE — reach thousands of buyers instantly " +
+                  "✅ Promote your ad to get 5× more views & sell faster " +
+                  "✅ Verified sellers get priority placement in search results " +
+                  "✅ Open your branded shop for a unique storefront experience " +
+                  "🚀 Go to Dashboard → Add Listing to start selling now! " +
+                  "💰 No hidden fees — list, promote & sell with zero commission! "}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}

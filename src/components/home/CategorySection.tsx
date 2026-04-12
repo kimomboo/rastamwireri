@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ShoppingBag, Sparkles, Calendar, ArrowRight, Store, Smartphone, Car, Home, Shirt, Dumbbell, Briefcase, Music, Utensils } from "lucide-react";
+import "@/styles/featured-shops.css";
 import { cn } from "@/lib/utils";
 
 const mainCategories = [
@@ -57,13 +58,39 @@ export function CategorySection() {
     <section className="py-16 md:py-20">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-4">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
             Explore Our Marketplace
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Whether you're looking to buy, sell, or discover — we've got you covered
           </p>
+        </div>
+
+        {/* Marquee ad banner */}
+        <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 py-2.5 px-4">
+          <div className="flex items-center gap-3">
+            <span className="featured-shops-blink shrink-0 inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <Sparkles className="h-3 w-3" />
+              Hot
+            </span>
+            <div className="overflow-hidden flex-1">
+              <div className="featured-shops-marquee whitespace-nowrap text-sm font-medium text-foreground/80">
+                {"🛒 Browse thousands of Products, Services & Events on SokoniArena! " +
+                  "✅ Find electronics, fashion, vehicles & more at unbeatable prices " +
+                  "✅ Hire verified professionals for any service you need " +
+                  "✅ Discover exciting events & workshops near you " +
+                  "✅ Create your FREE shop & start selling today " +
+                  "🚀 Join Kenya's fastest-growing marketplace — Sign up now! " +
+                  "🛒 Browse thousands of Products, Services & Events on SokoniArena! " +
+                  "✅ Find electronics, fashion, vehicles & more at unbeatable prices " +
+                  "✅ Hire verified professionals for any service you need " +
+                  "✅ Discover exciting events & workshops near you " +
+                  "✅ Create your FREE shop & start selling today " +
+                  "🚀 Join Kenya's fastest-growing marketplace — Sign up now! "}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Main Category Cards - 2x2 on mobile, 4 cols on desktop */}

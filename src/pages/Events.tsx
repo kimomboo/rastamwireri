@@ -5,7 +5,8 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Calendar, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, Calendar, Loader2, Sparkles } from "lucide-react";
+import "@/styles/featured-shops.css";
 import { useListings } from "@/hooks/useListings";
 import { format } from "date-fns";
 
@@ -41,9 +42,33 @@ export default function Events() {
             <Calendar className="h-8 w-8" />
             <h1 className="font-display text-3xl md:text-4xl font-bold">Events</h1>
           </div>
-          <p className="text-white/80">
+          <p className="text-white/80 mb-4">
             Discover exciting events, workshops, and gatherings near you
           </p>
+          <div className="relative overflow-hidden rounded-xl bg-white/10 border border-white/20 py-2.5 px-4">
+            <div className="flex items-center gap-3">
+              <span className="featured-shops-blink shrink-0 inline-flex items-center gap-1 bg-white text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <Sparkles className="h-3 w-3" />
+                Live
+              </span>
+              <div className="overflow-hidden flex-1">
+                <div className="featured-shops-marquee whitespace-nowrap text-sm font-medium text-white/90">
+                  {"🎉 Post your events on SokoniArena for FREE! " +
+                    "✅ Reach thousands of attendees across Kenya " +
+                    "✅ Promote your event for maximum visibility " +
+                    "✅ Workshops, concerts, meetups & more — all welcome " +
+                    "✅ Create a branded shop to host all your events " +
+                    "🚀 Go to Dashboard → Add Listing → Event to get started! " +
+                    "🎉 Post your events on SokoniArena for FREE! " +
+                    "✅ Reach thousands of attendees across Kenya " +
+                    "✅ Promote your event for maximum visibility " +
+                    "✅ Workshops, concerts, meetups & more — all welcome " +
+                    "✅ Create a branded shop to host all your events " +
+                    "🚀 Go to Dashboard → Add Listing → Event to get started! "}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

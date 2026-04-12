@@ -4,7 +4,8 @@ import { ShopCard } from "@/components/shops/ShopCard";
 import { useShops } from "@/hooks/useShops";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Store } from "lucide-react";
+import { Search, Store, Sparkles } from "lucide-react";
+import "@/styles/featured-shops.css";
 
 export default function Shops() {
   const { shops, isLoading } = useShops();
@@ -30,15 +31,44 @@ export default function Shops() {
               Browse unique shops from trusted sellers across the marketplace
             </p>
           </div>
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search shops..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
+        </div>
+
+        {/* Marquee ad banner */}
+        <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-orange-200/30 to-primary/10 border border-orange-300/30 py-2.5 px-4">
+          <div className="flex items-center gap-3">
+            <span className="featured-shops-blink shrink-0 inline-flex items-center gap-1 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <Sparkles className="h-3 w-3" />
+              New
+            </span>
+            <div className="overflow-hidden flex-1">
+              <div className="featured-shops-marquee whitespace-nowrap text-sm font-medium text-foreground/80">
+                {"🏪 Create your own branded shop on SokoniArena — it's FREE! " +
+                  "✅ Get a unique shop URL & custom storefront " +
+                  "✅ Showcase all your products, services & events in one place " +
+                  "✅ Build followers & grow your customer base " +
+                  "✅ Get verified for extra trust & visibility " +
+                  "✅ Promote your shop to reach thousands of buyers " +
+                  "🚀 Go to Dashboard → My Shop → Create Shop to get started! " +
+                  "🏪 Create your own branded shop on SokoniArena — it's FREE! " +
+                  "✅ Get a unique shop URL & custom storefront " +
+                  "✅ Showcase all your products, services & events in one place " +
+                  "✅ Build followers & grow your customer base " +
+                  "✅ Get verified for extra trust & visibility " +
+                  "✅ Promote your shop to reach thousands of buyers " +
+                  "🚀 Go to Dashboard → My Shop → Create Shop to get started! "}
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div className="relative w-full md:w-80 mb-8">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search shops..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+          />
         </div>
 
         {isLoading ? (
