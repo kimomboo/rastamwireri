@@ -134,6 +134,14 @@
     X-Robots-Tag = "noindex"
     Cache-Control = "public, max-age=3600"
 
+# Dynamic sitemap proxy headers
+[[headers]]
+  for = "/sitemap-dynamic-*"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    X-Robots-Tag = "noindex"
+    Cache-Control = "public, max-age=3600"
+
 [[headers]]
   for = "/sitemap.txt"
   [headers.values]
