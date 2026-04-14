@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { parseImages } from "@/lib/utils";
 import { Layout } from "@/components/layout/Layout";
 import { ListingCard } from "@/components/listings/ListingCard";
@@ -19,12 +20,25 @@ const categories = [
   "Arts & Culture",
   "Food & Drink",
   "Charity & Causes",
+  "Entertainment",
 ];
 
 export default function Events() {
+  const [searchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get("category");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Events");
   const [sortBy, setSortBy] = useState("date");
+
+  useEffect(() => {
+    if (categoryFromUrl) {
+      const matched = categories.find(
+        (c) => c.toLowerCase() === categoryFromUrl.toLowerCase()
+      );
+      if (matched) setSelectedCategory(matched);
+    }
+  }, [categoryFromUrl]);
 
   const { listings, isLoading, error } = useListings({
     type: "event",
