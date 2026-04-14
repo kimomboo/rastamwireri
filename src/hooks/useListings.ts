@@ -63,7 +63,7 @@ export function useListings(options: UseListingsOptions = {}) {
     }
 
     if (options.category && options.category !== "All Categories" && options.category !== "All Events") {
-      query = query.eq("category", options.category);
+      query = query.ilike("category", options.category);
     }
 
     if (debouncedSearch) {

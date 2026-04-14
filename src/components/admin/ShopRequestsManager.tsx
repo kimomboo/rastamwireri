@@ -53,9 +53,42 @@ export function ShopRequestsManager() {
 
   useEffect(() => { fetchRequests(); }, []);
 
+  const generateUniqueSlug = async (baseSlug: string): Promise<string> => {
+    let slug = baseSlug;
+    let attempt = 0;
+    while (true) {
+      const { data } = await supabase.from("shops").select("id").eq("slug", slug).maybeSingle();
+      if (!data) return slug;
+      attempt++;
+      slug = `${baseSlug}-${attempt}`;
+    }
+  };
+
   const handleAction = async (action: "approved" | "declined") => {
     if (!selected || !user) return;
     setIsProcessing(true);
+
+    if (action === "approved") {
+      // First create the shop with a unique slug
+      const uniqueSlug = await generateUniqueSlug(selected.shop_slug);
+      const { error: shopError } = await supabase.from("shops").insert({
+        user_id: selected.user_id,
+        name: selected.shop_name,
+        slug: uniqueSlug,
+        description: selected.description || null,
+        category: selected.category || null,
+        location: selected.location || null,
+        phone: selected.phone || null,
+        is_active: true,
+      });
+      if (shopError) {
+        toast({ title: "Error creating shop", description: shopError.message, variant: "destructive" });
+        setIsProcessing(false);
+        return;
+      }
+    }
+
+    // Update the request status
     const { error } = await supabase
       .from("shop_creation_requests")
       .update({
