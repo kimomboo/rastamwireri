@@ -6,9 +6,10 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Calendar, Loader2, Sparkles } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, Sparkles } from "lucide-react";
 import "@/styles/featured-shops.css";
 import { useListings } from "@/hooks/useListings";
+import categoryEvents from "@/assets/category-events.png";
 import { format } from "date-fns";
 
 const categories = [
@@ -53,7 +54,7 @@ export default function Events() {
       <div className="bg-gradient-accent text-white">
         <div className="container py-12">
           <div className="flex items-center gap-3 mb-2">
-            <Calendar className="h-8 w-8" />
+            <img src={categoryEvents} alt="SokoniArena Events" className="h-12 w-12 object-contain" />
             <h1 className="font-display text-3xl md:text-4xl font-bold">Events</h1>
           </div>
           <p className="text-white/80 mb-4">

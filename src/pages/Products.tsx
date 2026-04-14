@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, SlidersHorizontal, Grid3X3, LayoutGrid, Loader2, Sparkles } from "lucide-react";
 import "@/styles/featured-shops.css";
 import { useListings } from "@/hooks/useListings";
+import categoryProducts from "@/assets/category-products.png";
 
 const categories = [
   "All Categories",
@@ -52,7 +53,10 @@ export default function Products() {
       {/* Header */}
       <div className="bg-muted/30 border-b">
         <div className="container py-8">
-          <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">Products</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <img src={categoryProducts} alt="SokoniArena Products" className="h-12 w-12 object-contain" />
+            <h1 className="font-display text-3xl md:text-4xl font-bold">Products</h1>
+          </div>
           <p className="text-muted-foreground mb-4">
             Discover amazing products from trusted sellers across Kenya
           </p>

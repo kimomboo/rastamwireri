@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Store, Sparkles } from "lucide-react";
 import "@/styles/featured-shops.css";
+import categoryShops from "@/assets/category-shops.png";
 
 export default function Shops() {
   const { shops, isLoading } = useShops();
@@ -30,7 +31,7 @@ export default function Shops() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Store className="h-8 w-8 text-primary" />
+              <img src={categoryShops} alt="SokoniArena Shops" className="h-12 w-12 object-contain" />
               <h1 className="font-display text-3xl md:text-4xl font-bold">Shops</h1>
             </div>
             <p className="text-muted-foreground text-lg">

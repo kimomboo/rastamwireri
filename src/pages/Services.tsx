@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, SlidersHorizontal, Loader2, Sparkles } from "lucide-react";
 import "@/styles/featured-shops.css";
 import { useListings } from "@/hooks/useListings";
+import categoryServices from "@/assets/category-services.png";
 
 const categories = [
   "All Categories",
@@ -52,7 +53,10 @@ export default function Services() {
       {/* Header */}
       <div className="bg-gradient-purple text-white">
         <div className="container py-12">
-          <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">Services</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <img src={categoryServices} alt="SokoniArena Services" className="h-12 w-12 object-contain" />
+            <h1 className="font-display text-3xl md:text-4xl font-bold">Services</h1>
+          </div>
           <p className="text-white/80 mb-4">
             Find skilled professionals and service providers near you
           </p>

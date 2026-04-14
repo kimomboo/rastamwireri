@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, Sparkles, Calendar, ArrowRight } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import categoryProducts from "@/assets/category-products.png";
+import categoryServices from "@/assets/category-services.png";
+import categoryEvents from "@/assets/category-events.png";
 
 const categories = [
-  { id: "products", label: "Products", icon: ShoppingBag, color: "bg-primary" },
-  { id: "services", label: "Services", icon: Sparkles, color: "bg-lavender" },
-  { id: "events", label: "Events", icon: Calendar, color: "bg-accent" },
+  { id: "products", label: "Products", logo: categoryProducts },
+  { id: "services", label: "Services", logo: categoryServices },
+  { id: "events", label: "Events", logo: categoryEvents },
 ];
 
 export function HeroSection() {
@@ -75,9 +78,7 @@ export function HeroSection() {
 
           {/* Category Pills */}
           <div className="flex flex-wrap justify-center gap-3 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              return (
+            {categories.map((cat) => (
                 <Button
                   key={cat.id}
                   variant="hero"
@@ -85,14 +86,11 @@ export function HeroSection() {
                   onClick={() => navigate(`/${cat.id}`)}
                   className="group"
                 >
-                  <div className={`p-1.5 rounded-lg ${cat.color} text-white mr-1`}>
-                    <Icon className="h-4 w-4" />
-                  </div>
+                  <img src={cat.logo} alt={`SokoniArena ${cat.label}`} className="h-7 w-7 rounded-md object-contain mr-1" />
                   Browse {cat.label}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
-              );
-            })}
+              ))}
           </div>
         </div>
 

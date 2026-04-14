@@ -1,14 +1,18 @@
 import { Link } from "react-router-dom";
-import { ShoppingBag, Sparkles, Calendar, ArrowRight, Store, Smartphone, Car, Home, Shirt, Dumbbell, Briefcase, Music, Utensils } from "lucide-react";
+import { ArrowRight, Sparkles, Smartphone, Car, Home, Shirt, Dumbbell, Briefcase, Music, Utensils } from "lucide-react";
 import "@/styles/featured-shops.css";
 import { cn } from "@/lib/utils";
+import categoryProducts from "@/assets/category-products.png";
+import categoryServices from "@/assets/category-services.png";
+import categoryEvents from "@/assets/category-events.png";
+import categoryShops from "@/assets/category-shops.png";
 
 const mainCategories = [
   {
     id: "products",
     title: "Products",
     description: "Shop electronics, fashion, home goods & more",
-    icon: ShoppingBag,
+    logo: categoryProducts,
     href: "/products",
     gradient: "from-primary to-green-brand-dark",
     count: "1K+ items",
@@ -17,7 +21,7 @@ const mainCategories = [
     id: "services",
     title: "Services",
     description: "Find skilled professionals near you",
-    icon: Sparkles,
+    logo: categoryServices,
     href: "/services",
     gradient: "from-lavender to-purple-600",
     count: "500+ services",
@@ -26,7 +30,7 @@ const mainCategories = [
     id: "events",
     title: "Events",
     description: "Discover parties, workshops & gatherings",
-    icon: Calendar,
+    logo: categoryEvents,
     href: "/events",
     gradient: "from-accent to-rose-600",
     count: "200+ events",
@@ -35,7 +39,7 @@ const mainCategories = [
     id: "shops",
     title: "Shops",
     description: "Browse trusted sellers & branded stores",
-    icon: Store,
+    logo: categoryShops,
     href: "/shops",
     gradient: "from-orange-400 to-orange-600",
     count: "100+ shops",
@@ -95,9 +99,7 @@ export function CategorySection() {
 
         {/* Main Category Cards - 2x2 on mobile, 4 cols on desktop */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
-          {mainCategories.map((category) => {
-            const Icon = category.icon;
-            return (
+          {mainCategories.map((category) => (
               <Link
                 key={category.id}
                 to={category.href}
@@ -115,9 +117,11 @@ export function CategorySection() {
                 {/* Content */}
                 <div className="relative z-10 text-white">
                   <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <div className="p-2 md:p-3 rounded-xl bg-white/20 backdrop-blur-sm">
-                      <Icon className="h-5 w-5 md:h-6 md:w-6" />
-                    </div>
+                    <img 
+                      src={category.logo} 
+                      alt={`SokoniArena ${category.title}`} 
+                      className="h-12 w-12 md:h-16 md:w-16 rounded-xl object-contain drop-shadow-lg" 
+                    />
                     <span className="text-[10px] md:text-sm font-medium bg-white/20 px-2 md:px-3 py-0.5 md:py-1 rounded-full">
                       {category.count}
                     </span>
@@ -136,8 +140,7 @@ export function CategorySection() {
                   </div>
                 </div>
               </Link>
-            );
-          })}
+            ))}
         </div>
 
         {/* Sub Categories */}
