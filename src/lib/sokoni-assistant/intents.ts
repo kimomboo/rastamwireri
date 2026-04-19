@@ -1,195 +1,206 @@
-// Free, rule-based intent engine for Sokoni Assistant.
-// No API calls, no costs — runs 100% in the browser.
+// Smarter rule-based intent engine for Sokoni Assistant.
+// Combines: navigation, live DB search, walkthrough, FAQs, feature guides.
+// 100% free — runs in the browser.
+
+import {
+  SITE_PAGES,
+  FEATURE_GUIDES,
+  FAQS,
+  SOKONI_ADVANTAGES,
+  WALKTHROUGH_STEPS,
+} from "./siteKnowledge";
+import { searchEverything, summariseResults, parseQuery } from "./dbSearch";
+
+export type AssistantAction =
+  | { type: "navigate"; path: string }
+  | { type: "search"; query: string }
+  | { type: "external"; url: string }
+  | { type: "speak_steps"; steps: string[] }
+  | { type: "end_session" };
 
 export type IntentResult = {
   reply: string;
-  action?:
-    | { type: "navigate"; path: string }
-    | { type: "search"; query: string }
-    | { type: "external"; url: string };
+  action?: AssistantAction;
+  // Optional structured payload for the UI (e.g. listing previews)
+  data?: { listings?: any[]; shops?: any[] };
 };
 
-type Rule = {
-  // The bot matches if ANY of these patterns hit.
-  patterns: RegExp[];
-  handle: (text: string, match: RegExpMatchArray) => IntentResult;
+export type AssistantContext = {
+  username?: string | null;
+  isLoggedIn: boolean;
+  walkthroughStep: number;
 };
 
 const norm = (s: string) => s.toLowerCase().trim();
 
-// Helper to build a route response
-const go = (path: string, reply: string): IntentResult => ({
-  reply,
-  action: { type: "navigate", path },
-});
-
-const rules: Rule[] = [
-  // ---------- Greetings ----------
-  {
-    patterns: [/^(hi|hello|hey|habari|mambo|niaje|sasa|jambo)\b/i],
-    handle: () => ({
-      reply:
-        "Hey there! I'm Sokoni Assistant. I can help you search products, navigate the site, or explain how things work. What would you like to do?",
-    }),
-  },
-  {
-    patterns: [/\b(thank you|thanks|asante|thx)\b/i],
-    handle: () => ({ reply: "You're welcome! Anything else I can help with?" }),
-  },
-  {
-    patterns: [/\b(bye|goodbye|kwaheri|see you)\b/i],
-    handle: () => ({ reply: "Goodbye! Happy shopping on SokoniArena." }),
-  },
-
-  // ---------- Search intents (capture the query) ----------
-  {
-    patterns: [
-      /(?:search|find|look for|show me|i (?:want|need)|nipe|tafuta)\s+(?:for\s+)?(.+)/i,
-    ],
-    handle: (_t, m) => {
-      const query = m[1].replace(/[.?!]+$/, "").trim();
-      return {
-        reply: `Searching for "${query}"...`,
-        action: { type: "search", query },
-      };
-    },
-  },
-
-  // ---------- Navigation ----------
-  {
-    patterns: [/\b(home|homepage|main page|landing)\b/i],
-    handle: () => go("/", "Taking you home."),
-  },
-  {
-    patterns: [/\b(products?|items?|bidhaa)\b/i],
-    handle: () => go("/products", "Opening Products."),
-  },
-  {
-    patterns: [/\b(services?|huduma)\b/i],
-    handle: () => go("/services", "Opening Services."),
-  },
-  {
-    patterns: [/\b(events?|event|matukio)\b/i],
-    handle: () => go("/events", "Opening Events."),
-  },
-  {
-    patterns: [/\b(shops?|stores?|maduka)\b/i],
-    handle: () => go("/shops", "Opening Shops."),
-  },
-  {
-    patterns: [/\b(fun ?circle|social|friends)\b/i],
-    handle: () => go("/fun-circle", "Opening Fun Circle."),
-  },
-  {
-    patterns: [/\b(favorites?|saved|wishlist)\b/i],
-    handle: () => go("/favorites", "Opening your favorites."),
-  },
-  {
-    patterns: [/\b(messages?|chats?|inbox|ujumbe)\b/i],
-    handle: () => go("/messages", "Opening your messages."),
-  },
-  {
-    patterns: [/\b(dashboard|my account|account)\b/i],
-    handle: () => go("/dashboard", "Opening your dashboard."),
-  },
-  {
-    patterns: [/\b(login|sign ?in|log ?in)\b/i],
-    handle: () => go("/login", "Taking you to sign in."),
-  },
-  {
-    patterns: [/\b(register|sign ?up|create account|join)\b/i],
-    handle: () => go("/register", "Let's create your account."),
-  },
-  {
-    patterns: [/\b(how it works|how to use|guide|tutorial)\b/i],
-    handle: () => go("/how-it-works", "Here's how SokoniArena works."),
-  },
-  {
-    patterns: [/\b(terms|terms of service)\b/i],
-    handle: () => go("/terms", "Opening our Terms."),
-  },
-  {
-    patterns: [/\b(privacy|privacy policy)\b/i],
-    handle: () => go("/privacy", "Opening our Privacy Policy."),
-  },
-
-  // ---------- Help / FAQ ----------
-  {
-    patterns: [/\b(post|create|add|list).{0,20}(ad|listing|product|item)\b/i],
-    handle: () => ({
-      reply:
-        "To post an ad: sign in, open your Dashboard, then click 'New Listing'. You can add photos, set a price, and pick a category. Want me to take you there?",
-      action: { type: "navigate", path: "/dashboard" },
-    }),
-  },
-  {
-    patterns: [/\b(open|create|start).{0,20}(shop|store)\b/i],
-    handle: () => ({
-      reply:
-        "To open a shop, head to your Dashboard and select 'My Shop'. You'll be able to brand it, add listings, and even request promotions. Taking you there now.",
-      action: { type: "navigate", path: "/dashboard" },
-    }),
-  },
-  {
-    patterns: [/\b(contact|reach|message).{0,20}(seller|owner|shop)\b/i],
-    handle: () => ({
-      reply:
-        "Open any listing and use the contact buttons — call, WhatsApp, or in-app message. You'll need to be signed in to chat.",
-    }),
-  },
-  {
-    patterns: [/\b(price|pricing|cost|fee|charges|free)\b/i],
-    handle: () => ({
-      reply:
-        "Browsing and posting basic listings is free. Premium features like Featured listings, Sponsored ads, and Shop promotions are paid — you can request them from your Dashboard.",
-    }),
-  },
-  {
-    patterns: [/\b(payment|pay|mpesa|m-pesa)\b/i],
-    handle: () => ({
-      reply:
-        "Payments between buyers and sellers are arranged directly — most users use M-Pesa or cash on delivery. Always inspect items before paying.",
-    }),
-  },
-  {
-    patterns: [/\b(safe|safety|scam|fraud|trust)\b/i],
-    handle: () => ({
-      reply:
-        "Stay safe: meet in public places, inspect items first, never send money before seeing the product, and report suspicious shops. Verified shops have a badge.",
-    }),
-  },
-  {
-    patterns: [/\b(who are you|what are you|your name)\b/i],
-    handle: () => ({
-      reply:
-        "I'm Sokoni Assistant — your free voice helper for SokoniArena. Ask me to find things, take you to a page, or explain how the marketplace works.",
-    }),
-  },
-  {
-    patterns: [/\b(what can you do|help|commands|menu)\b/i],
-    handle: () => ({
-      reply:
-        "I can: 🔍 search ('find iPhones'), 🧭 navigate ('open shops'), 📚 explain features ('how do I post an ad'), and answer questions about pricing, safety and payments. Just talk to me!",
-    }),
-  },
-];
-
-export function detectIntent(rawText: string): IntentResult {
-  const text = norm(rawText);
-  if (!text) {
-    return { reply: "I didn't catch that. Could you say it again?" };
-  }
-
-  for (const rule of rules) {
-    for (const pat of rule.patterns) {
-      const m = text.match(pat);
-      if (m) return rule.handle(text, m);
+function matchPage(text: string) {
+  for (const p of SITE_PAGES) {
+    for (const n of p.names) {
+      const re = new RegExp(`\\b${n.replace(/\s+/g, "\\s+")}\\b`, "i");
+      if (re.test(text)) return p;
     }
   }
+  return null;
+}
 
-  // Fallback — treat whole utterance as a search query.
-  return {
-    reply: `I'll search for "${rawText}" for you.`,
-    action: { type: "search", query: rawText },
-  };
+function matchFeature(text: string) {
+  for (const f of FEATURE_GUIDES) {
+    if (f.keys.some((k) => text.includes(k))) return f;
+  }
+  return null;
+}
+
+function matchFaq(text: string) {
+  for (const f of FAQS) {
+    if (f.keys.some((k) => text.includes(k))) return f;
+  }
+  return null;
+}
+
+const GREETING_RE = /^\s*(hi|hello|hey|habari|mambo|niaje|sasa|jambo|good (morning|afternoon|evening))\b/i;
+const THANKS_RE = /\b(thank you|thanks|asante|thx|appreciate it)\b/i;
+const BYE_RE = /\b(bye|goodbye|kwaheri|stop|end session|that('?s)? all|i'?m done)\b/i;
+const SEARCH_RE = /\b(search|find|look for|show me|i (?:want|need|am looking for)|nipe|tafuta|do you have|any)\b/i;
+const NAV_RE = /\b(open|go to|take me to|navigate to|show|visit)\b/i;
+const WALK_RE = /\b(walk ?through|tour|guide me|show me around|how does (this|the site) work|onboarding|introduce)\b/i;
+const ADVANTAGE_RE = /\b(why|advantage|benefit|outstanding|special|different|unique|features?)\b.*\b(sokoni|arena|this site|marketplace|app)\b/i;
+const HELP_RE = /\b(what can you do|help|commands|menu|capabilities)\b/i;
+const SELF_RE = /\b(who are you|what are you|your name|introduce yourself)\b/i;
+
+export async function detectIntent(rawText: string, ctx: AssistantContext): Promise<IntentResult> {
+  const text = norm(rawText);
+  if (!text) return { reply: "I didn't catch that. Could you say it again?" };
+
+  // --- End session ---
+  if (BYE_RE.test(text)) {
+    return {
+      reply: `Goodbye${ctx.username ? `, ${ctx.username}` : ""}! Have a great day on SokoniArena.`,
+      action: { type: "end_session" },
+    };
+  }
+
+  // --- Greetings ---
+  if (GREETING_RE.test(text)) {
+    const name = ctx.username ? `, ${ctx.username}` : "";
+    return {
+      reply: `Hey${name}! What can I help you with — search, navigate, or learn how something works?`,
+    };
+  }
+
+  if (THANKS_RE.test(text)) {
+    return { reply: "You're welcome! Anything else?" };
+  }
+
+  if (SELF_RE.test(text)) {
+    return {
+      reply:
+        "I'm Sokoni Assistant — your free voice guide for SokoniArena. I can search products, services, shops and events, navigate the site, and explain every feature.",
+    };
+  }
+
+  if (HELP_RE.test(text)) {
+    return {
+      reply:
+        "I can: search ('find iPhones under 30k in Nairobi'), navigate ('open shops'), explain features ('how do I open a shop'), give a walkthrough ('show me around'), and answer FAQs about safety, payments and pricing. Just talk to me.",
+    };
+  }
+
+  // --- Walkthrough ---
+  if (WALK_RE.test(text)) {
+    return {
+      reply: WALKTHROUGH_STEPS[0],
+      action: { type: "speak_steps", steps: WALKTHROUGH_STEPS },
+    };
+  }
+
+  // --- Why SokoniArena ---
+  if (ADVANTAGE_RE.test(text)) {
+    return {
+      reply:
+        "SokoniArena stands out because: " +
+        SOKONI_ADVANTAGES.slice(0, 5).join("; ") +
+        ". Want me to walk you through it?",
+    };
+  }
+
+  // --- FAQ ---
+  const faq = matchFaq(text);
+  if (faq && !SEARCH_RE.test(text) && !NAV_RE.test(text)) {
+    return { reply: faq.answer };
+  }
+
+  // --- Feature guides (how-to) ---
+  const feat = matchFeature(text);
+  if (feat) {
+    const reply = `${feat.title}: ${feat.steps.join(". ")}.`;
+    return {
+      reply,
+      action: feat.cta ? { type: "navigate", path: feat.cta.path } : undefined,
+    };
+  }
+
+  // --- Navigation ---
+  if (NAV_RE.test(text)) {
+    const page = matchPage(text);
+    if (page) {
+      return {
+        reply: `Opening ${page.names[0]} for you.`,
+        action: { type: "navigate", path: page.path },
+      };
+    }
+  }
+  // Plain page reference like "shops" or "favorites"
+  const pageOnly = matchPage(text);
+  if (pageOnly && (NAV_RE.test(text) || text.split(/\s+/).length <= 4)) {
+    return {
+      reply: `Opening ${pageOnly.names[0]}.`,
+      action: { type: "navigate", path: pageOnly.path },
+    };
+  }
+
+  // --- Personal account shortcuts ---
+  if (/\b(my (listings|ads|shop|cart|orders|favorites?))\b/i.test(text)) {
+    if (!ctx.isLoggedIn) {
+      return {
+        reply: "You'll need to sign in first to access your account. Taking you to login.",
+        action: { type: "navigate", path: "/login" },
+      };
+    }
+    if (/favorite/.test(text)) return { reply: "Opening your favorites.", action: { type: "navigate", path: "/favorites" } };
+    return { reply: "Opening your dashboard.", action: { type: "navigate", path: "/dashboard" } };
+  }
+
+  // --- Search (explicit) ---
+  if (SEARCH_RE.test(text)) {
+    const stripped = text.replace(SEARCH_RE, " ").replace(/^\s*for\s+/i, "").trim();
+    return await runSearch(stripped || rawText);
+  }
+
+  // --- Fallback: treat as search ---
+  return await runSearch(rawText);
+}
+
+async function runSearch(raw: string): Promise<IntentResult> {
+  try {
+    const result = await searchEverything(raw, 5);
+    const reply = summariseResults(result);
+    return {
+      reply,
+      action: { type: "search", query: result.parsed.text || raw },
+      data: { listings: result.listings, shops: result.shops },
+    };
+  } catch {
+    const parsed = parseQuery(raw);
+    return {
+      reply: `Searching for "${parsed.text}"…`,
+      action: { type: "search", query: parsed.text },
+    };
+  }
+}
+
+export function welcomeMessage(ctx: AssistantContext): string {
+  if (ctx.isLoggedIn && ctx.username) {
+    return `Welcome back, ${ctx.username}! I'm Sokoni Assistant. Tap the mic and tell me what you'd like to find or do — I'll listen until you end the session.`;
+  }
+  return "Karibu! I'm Sokoni Assistant — your free voice guide to SokoniArena. Sign in to get personalised help, or just tap the mic and ask me anything: search, navigate, or learn how the site works.";
 }
