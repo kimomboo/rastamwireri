@@ -210,7 +210,7 @@ serve(async (req) => {
     }
 
     // ============================================
-    -- ADMIN: GET ALL CONVERSATIONS (for troubleshooting)
+    // ADMIN: GET ALL CONVERSATIONS (for troubleshooting)
     // ============================================
     if (action === "admin_get_all_conversations") {
       if (!userId) {
