@@ -72,6 +72,140 @@ serve(async (req) => {
     const { action, data } = body;
 
     // ============================================
+    // AI CHAT (streaming, with tool calling)
+    // ============================================
+    if (action === "chat") {
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      if (!LOVABLE_API_KEY) {
+        return new Response(
+          JSON.stringify({ error: "AI not configured" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { messages = [], username, isLoggedIn } = data || {};
+
+      const systemPrompt = `You are Sokoni Assistant — the friendly, witty, deeply knowledgeable AI guide for SokoniArena, Kenya's social marketplace.
+
+ABOUT SOKONIARENA:
+- Kenya's social marketplace for products, services, events, and shops
+- Users can browse, post listings, open shops, message sellers, save favorites
+- Has a social layer called Fun Circle (stories, friends, reactions)
+- Mobile-first PWA, M-Pesa friendly, prices in KES
+- Free to browse and post basic listings; premium features (Featured listings, Sponsored ads, Shop promotions) are paid
+
+PAGES YOU CAN NAVIGATE TO:
+/ (home), /products, /services, /events, /shops, /fun-circle, /favorites, /messages, /dashboard, /login, /register, /how-it-works, /terms, /privacy, /search?q=...
+
+KEY GUIDES:
+- Post listing: Sign in → Dashboard → New Listing → fill details → Publish
+- Open shop: Dashboard → My Shop → add name/logo/cover → submit for approval
+- Promote shop: Dashboard → My Shop → Request Promotion
+- Feature listing: Dashboard → listing → Request Featured/Sponsorship
+- Contact seller: open listing → Call/WhatsApp/Message buttons (sign in required for in-app)
+- Favorites: tap heart on any listing → view in /favorites
+- Reset password: /forgot-password → enter email → click link
+
+SAFETY: Meet in public, inspect items first, never pay before seeing item, prefer verified shops.
+
+YOU HAVE TOOLS:
+- search_marketplace: when user wants to find products, services, events or shops (parses location, price filters automatically server-side). Use this whenever they say "find/show/look for/I want X".
+- navigate: when user wants to go to a specific page.
+- end_session: when user says goodbye/bye/stop/end session.
+
+USER CONTEXT:
+- Logged in: ${isLoggedIn ? "yes" : "no"}
+- Username: ${username || "guest"}
+
+STYLE:
+- Warm, concise, conversational (this will be spoken aloud — keep replies under 3 sentences when possible).
+- Mix in light Swahili greetings when natural (karibu, asante, sawa).
+- Never invent products or shops — use search_marketplace to find real data.
+- If unsure, ask one short clarifying question.
+- If user asks for personal stuff (my listings, my shop) and isn't logged in, tell them to sign in first.`;
+
+      const tools = [
+        {
+          type: "function",
+          function: {
+            name: "search_marketplace",
+            description: "Search SokoniArena for products, services, events or shops. Returns matches and navigates user to /search.",
+            parameters: {
+              type: "object",
+              properties: {
+                query: { type: "string", description: "What to search for, in natural language. Can include location and price hints (e.g. 'iPhones under 30k in Nairobi')." },
+              },
+              required: ["query"],
+              additionalProperties: false,
+            },
+          },
+        },
+        {
+          type: "function",
+          function: {
+            name: "navigate",
+            description: "Navigate the user to a specific page on SokoniArena.",
+            parameters: {
+              type: "object",
+              properties: {
+                path: { type: "string", description: "App path starting with /, e.g. /shops, /dashboard, /favorites." },
+              },
+              required: ["path"],
+              additionalProperties: false,
+            },
+          },
+        },
+        {
+          type: "function",
+          function: {
+            name: "end_session",
+            description: "End the live voice session when the user says goodbye.",
+            parameters: { type: "object", properties: {}, additionalProperties: false },
+          },
+        },
+      ];
+
+      const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-lite",
+          stream: true,
+          messages: [{ role: "system", content: systemPrompt }, ...messages],
+          tools,
+        }),
+      });
+
+      if (!aiResp.ok) {
+        if (aiResp.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "Rate limits exceeded, please try again in a moment." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (aiResp.status === 402) {
+          return new Response(
+            JSON.stringify({ error: "AI credits exhausted. Add credits in Settings → Workspace → Usage." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        const errTxt = await aiResp.text();
+        console.error("AI gateway error:", aiResp.status, errTxt);
+        return new Response(
+          JSON.stringify({ error: "AI gateway error" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(aiResp.body, {
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      });
+    }
+
+    // ============================================
     // STORE CONVERSATION MESSAGE
     // ============================================
     if (action === "store_message") {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Mic, MicOff, X, Volume2, VolumeX, Sparkles, PhoneOff, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { detectIntent, welcomeMessage, type AssistantContext } from "@/lib/sokoni-assistant/intents";
+import { streamChat, welcomeMessage, type ChatMsg } from "@/lib/sokoni-assistant/aiBrain";
 import {
   isSpeechRecognitionSupported,
   speak,
@@ -51,7 +51,7 @@ export function SokoniAssistant() {
   // Welcome + load history on open
   useEffect(() => {
     if (!open) return;
-    const ctx: AssistantContext = { username, isLoggedIn: !!user, walkthroughStep: 0 };
+    const ctx = { username, isLoggedIn: !!user };
     const saved = user ? loadHistory(user.id) : [];
     if (saved.length) {
       setMessages(saved);
@@ -78,7 +78,6 @@ export function SokoniAssistant() {
     const uid = userIdRef.current;
     if (uid) {
       appendLocal(uid, m);
-      // best-effort cloud persistence
       persistMessage(uid, m.role, m.text);
     }
   }, []);
@@ -93,58 +92,58 @@ export function SokoniAssistant() {
       };
       pushMessage(userMsg);
 
-      const ctx: AssistantContext = { username, isLoggedIn: !!user, walkthroughStep: 0 };
-      const result = await detectIntent(userText, ctx);
-      const botMsg: StoredMsg = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        text: result.reply,
-        ts: Date.now(),
-      };
-      pushMessage(botMsg);
+      // Build conversation history (last 12 messages) for AI context
+      const history: ChatMsg[] = messages
+        .slice(-12)
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
+      history.push({ role: "user", content: userText });
 
-      // Speak (pause mic while talking to avoid feedback)
-      if (!muted) {
-        sessionRef.current?.pauseForSpeaking();
-        speak(result.reply, {
-          onEnd: () => sessionRef.current?.resumeAfterSpeaking(),
+      setPartial("Thinking…");
+      let streamed = "";
+
+      try {
+        const result = await streamChat({
+          messages: history,
+          username,
+          isLoggedIn: !!user,
+          onDelta: (chunk) => {
+            streamed += chunk;
+            setPartial(streamed);
+          },
         });
-      }
 
-      // Multi-step walkthrough
-      if (result.action?.type === "speak_steps") {
-        const steps = result.action.steps.slice(1); // first already spoken as reply
-        let i = 0;
-        const next = () => {
-          if (i >= steps.length || muted) {
-            sessionRef.current?.resumeAfterSpeaking();
-            return;
-          }
-          const stepMsg: StoredMsg = {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            text: steps[i],
-            ts: Date.now(),
-          };
-          pushMessage(stepMsg);
-          speak(steps[i], { onEnd: () => { i++; setTimeout(next, 250); } });
+        setPartial("");
+        const botMsg: StoredMsg = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text: result.reply,
+          ts: Date.now(),
         };
-        sessionRef.current?.pauseForSpeaking();
-        setTimeout(next, 800);
-        return;
-      }
+        pushMessage(botMsg);
 
-      if (result.action?.type === "navigate") {
-        setTimeout(() => navigate(result.action!.type === "navigate" ? (result.action as any).path : "/"), 700);
-      } else if (result.action?.type === "search") {
-        setTimeout(() => navigate(`/search?q=${encodeURIComponent((result.action as any).query)}`), 700);
-      } else if (result.action?.type === "external") {
-        window.open((result.action as any).url, "_blank", "noopener,noreferrer");
-      } else if (result.action?.type === "end_session") {
-        setTimeout(() => endLiveSession(), 1500);
+        // Speak full reply once generation completes
+        if (!muted && result.reply) {
+          sessionRef.current?.pauseForSpeaking();
+          speak(result.reply, {
+            onEnd: () => sessionRef.current?.resumeAfterSpeaking(),
+          });
+        }
+
+        if (result.action?.type === "navigate") {
+          setTimeout(() => navigate((result.action as any).path), 700);
+        } else if (result.action?.type === "search") {
+          setTimeout(() => navigate(`/search?q=${encodeURIComponent((result.action as any).query)}`), 700);
+        } else if (result.action?.type === "end_session") {
+          setTimeout(() => endLiveSession(), 1500);
+        }
+      } catch (err: any) {
+        setPartial("");
+        const errText = err?.message || "Something went wrong reaching the AI. Please try again.";
+        pushMessage({ id: crypto.randomUUID(), role: "assistant", text: errText, ts: Date.now() });
+        if (!muted) speak(errText);
       }
     },
-    [muted, navigate, pushMessage, user, username]
+    [messages, muted, navigate, pushMessage, user, username]
   );
 
   // ---- Live session control ----
@@ -214,8 +213,7 @@ export function SokoniAssistant() {
   const handleClearHistory = () => {
     if (user) clearHistory(user.id);
     setMessages([]);
-    const ctx: AssistantContext = { username, isLoggedIn: !!user, walkthroughStep: 0 };
-    const w: StoredMsg = { id: crypto.randomUUID(), role: "assistant", text: welcomeMessage(ctx), ts: Date.now() };
+    const w: StoredMsg = { id: crypto.randomUUID(), role: "assistant", text: welcomeMessage({ username, isLoggedIn: !!user }), ts: Date.now() };
     setMessages([w]);
   };
 
