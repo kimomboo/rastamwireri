@@ -108,71 +108,113 @@ export function HeroSection() {
             </div>
           </aside>
 
-          {/* CENTER — rotating banner */}
+          {/* CENTER — hero banner with rotating product imagery */}
           <div className="col-span-12 lg:col-span-6 xl:col-span-6">
-            <div className="relative h-[280px] sm:h-[360px] md:h-[440px] rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-primary to-green-brand-dark shadow-md">
-              {/* Background image of current listing */}
-              {current && (
-                <Link to={`/${categoryPath}/${current.id}`} className="absolute inset-0">
-                  <OptimizedImage
-                    src={current.image!}
-                    alt={current.title}
-                    className="w-full h-full object-cover opacity-40"
-                    width={1200}
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-transparent" />
-                </Link>
-              )}
+            <div className="relative h-[280px] sm:h-[360px] md:h-[440px] rounded-2xl overflow-hidden shadow-md
+                            bg-[radial-gradient(circle_at_85%_50%,_hsl(var(--primary)/0.55),_transparent_60%),linear-gradient(135deg,_hsl(var(--primary))_0%,_hsl(142_70%_32%)_100%)]">
+              {/* Decorative soft swirl */}
+              <div className="absolute inset-0 opacity-30 pointer-events-none
+                              bg-[radial-gradient(ellipse_at_75%_55%,_rgba(255,255,255,0.25),_transparent_55%)]" />
 
-              {/* Content */}
-              <div className="relative h-full flex flex-col justify-between p-5 sm:p-8 text-primary-foreground pointer-events-none">
-                <div>
-                  <span className="inline-block bg-white/20 backdrop-blur-sm text-xs font-semibold px-3 py-1 rounded-full mb-3">
+              {/* TEXT — left side (static copy, per reference) */}
+              <div className="relative z-10 h-full flex flex-col justify-between p-5 sm:p-8 text-primary-foreground max-w-full">
+                <div className="max-w-[55%] sm:max-w-[52%]">
+                  <span className="inline-block bg-white/15 backdrop-blur-sm text-[11px] sm:text-xs font-semibold px-3 py-1 rounded-full mb-3 sm:mb-4">
                     Mega Deals
                   </span>
-                  <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold leading-tight max-w-md">
-                    {current?.title || "Discover Amazing Deals in Your Community"}
+                  <h1 className="font-display text-xl sm:text-3xl md:text-4xl font-bold leading-tight">
+                    Discover Amazing Deals in Your Community
                   </h1>
-                  <p className="mt-2 text-sm sm:text-base text-white/85 max-w-md line-clamp-2">
-                    {isLoading
-                      ? "Loading the latest from Sokoni Arena…"
-                      : current
-                      ? `From ${current.location} — tap to view this listing`
-                      : "Buy, sell, and connect with trusted sellers across Kenya."}
+                  <p className="hidden sm:block mt-3 text-sm md:text-[15px] text-white/90 leading-relaxed">
+                    Buy, sell, and connect with trusted sellers.
+                    From products to services to events —
+                    find it all on SokoniArena.
                   </p>
+
+                  <div className="flex items-center gap-2 sm:gap-3 mt-4 sm:mt-5">
+                    <Button
+                      size="lg"
+                      className="bg-white text-primary hover:bg-white/90 font-semibold shadow-sm"
+                      onClick={() =>
+                        current ? navigate(`/${categoryPath}/${current.id}`) : navigate("/products")
+                      }
+                    >
+                      Shop Now
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent text-white border-white/70 hover:bg-white/10 hover:text-white font-semibold"
+                      asChild
+                    >
+                      <Link to="/shops">Explore Shops</Link>
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3 pointer-events-auto">
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="bg-white text-primary hover:bg-white/90"
-                    onClick={() =>
-                      current ? navigate(`/${categoryPath}/${current.id}`) : navigate("/products")
-                    }
-                  >
-                    Shop Now
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="bg-transparent text-white border-white/60 hover:bg-white/10"
-                    asChild
-                  >
-                    <Link to="/shops">Explore Shops</Link>
-                  </Button>
+                {/* Trust row — bottom-left */}
+                <div className="hidden sm:flex items-center gap-5 text-white/90 text-xs sm:text-sm">
+                  <span className="inline-flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4" /> 100% Secure
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Truck className="h-4 w-4" /> Fast Delivery
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <RotateCcw className="h-4 w-4" /> Easy Returns
+                  </span>
                 </div>
               </div>
 
-              {/* Carousel controls */}
+              {/* RIGHT — rotating listing image (floats on the green) */}
+              {current && (
+                <Link
+                  to={`/${categoryPath}/${current.id}`}
+                  className="absolute right-3 sm:right-6 md:right-10 top-1/2 -translate-y-1/2 z-[5]
+                             w-[42%] sm:w-[44%] md:w-[46%] aspect-square
+                             flex items-center justify-center group"
+                  aria-label={current.title}
+                >
+                  <div className="relative w-full h-full">
+                    {/* glow ring */}
+                    <div className="absolute inset-0 rounded-full
+                                    bg-[radial-gradient(circle,_rgba(255,255,255,0.25)_0%,_transparent_65%)]" />
+                    <OptimizedImage
+                      src={current.image!}
+                      alt={current.title}
+                      className="relative w-full h-full object-contain drop-shadow-2xl
+                                 transition-transform duration-700 group-hover:scale-[1.03]"
+                      width={800}
+                      priority
+                    />
+                  </div>
+
+                  {/* Top-right star badge */}
+                  <span className="absolute top-2 right-2 sm:top-4 sm:right-4 h-9 w-9 sm:h-11 sm:w-11
+                                   rounded-full bg-yellow-400 text-yellow-900 inline-flex items-center justify-center
+                                   shadow-lg ring-4 ring-yellow-300/40">
+                    <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />
+                  </span>
+
+                  {/* Bottom-right percent badge */}
+                  <span className="absolute -bottom-1 -right-1 sm:bottom-2 sm:right-2
+                                   h-12 w-12 sm:h-14 sm:w-14 inline-flex items-center justify-center
+                                   text-white font-bold text-xs sm:text-sm
+                                   bg-[hsl(142_70%_32%)] shadow-xl
+                                   [clip-path:polygon(50%_0%,_61%_12%,_78%_5%,_82%_22%,_98%_28%,_90%_43%,_100%_58%,_85%_67%,_88%_85%,_70%_85%,_61%_100%,_50%_88%,_39%_100%,_30%_85%,_12%_85%,_15%_67%,_0%_58%,_10%_43%,_2%_28%,_18%_22%,_22%_5%,_39%_12%)]">
+                    <Percent className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </span>
+                </Link>
+              )}
+
+              {/* Carousel arrows */}
               {banners.length > 1 && (
                 <>
                   <button
                     type="button"
                     aria-label="Previous"
                     onClick={goPrev}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/30 hover:bg-white/50 backdrop-blur-sm text-white inline-flex items-center justify-center"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-white/90 hover:bg-white text-primary shadow-md inline-flex items-center justify-center"
                   >
                     <ChevronRight className="h-5 w-5 rotate-180" />
                   </button>
@@ -180,20 +222,20 @@ export function HeroSection() {
                     type="button"
                     aria-label="Next"
                     onClick={goNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/30 hover:bg-white/50 backdrop-blur-sm text-white inline-flex items-center justify-center"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-white/90 hover:bg-white text-primary shadow-md inline-flex items-center justify-center"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
 
-                  {/* Dots */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                    {banners.slice(0, Math.min(8, banners.length)).map((_, i) => (
+                  {/* Dots — centered bottom */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+                    {banners.slice(0, Math.min(5, banners.length)).map((_, i) => (
                       <span
                         key={i}
                         className={`h-1.5 rounded-full transition-all ${
-                          i === bannerIdx % Math.min(8, banners.length)
+                          i === bannerIdx % Math.min(5, banners.length)
                             ? "w-6 bg-white"
-                            : "w-1.5 bg-white/50"
+                            : "w-1.5 bg-white/60"
                         }`}
                       />
                     ))}
