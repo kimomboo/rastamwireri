@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +32,9 @@ export function ListingForm({ listing, onSuccess, onCancel, shopId }: ListingFor
     title: listing?.title || "",
     description: listing?.description || "",
     listing_type: listing?.listing_type || "product",
+    section: listing?.section || "",
     category: listing?.category || "",
+    subcategory: listing?.subcategory || "",
     price: listing?.price?.toString() || "",
     original_price: listing?.original_price?.toString() || "",
     location: listing?.location || "",
@@ -41,6 +43,20 @@ export function ListingForm({ listing, onSuccess, onCancel, shopId }: ListingFor
     delivery_available: listing?.delivery_available || false,
     event_date: listing?.event_date ? new Date(listing.event_date).toISOString().slice(0, 16) : "",
   });
+
+  // Cascading category options derived from the master taxonomy.
+  const availableSections = useMemo(
+    () => getSectionsForType(formData.listing_type as ListingTypeScope),
+    [formData.listing_type],
+  );
+  const activeSection = useMemo(
+    () => findSection(formData.section),
+    [formData.section],
+  );
+  const activeCategory = useMemo(
+    () => activeSection?.categories.find((c) => c.label === formData.category),
+    [activeSection, formData.category],
+  );
   
   const [images, setImages] = useState<string[]>(listing?.images || []);
 
