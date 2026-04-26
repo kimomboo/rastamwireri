@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/untyped-client";
 import { parseImages } from "@/lib/utils";
-import { useSellerContacts } from "@/hooks/useSellerContacts";
+
 
 interface PromotedListing {
   id: string;
@@ -117,8 +117,6 @@ export const FlashSales = memo(function FlashSales() {
   }, []);
 
   const visible = useMemo(() => shuffle(pool).slice(0, 30), [pool, shuffleTick]);
-  const userIds = useMemo(() => visible.map((l) => l.user_id).filter(Boolean), [visible]);
-  const contacts = useSellerContacts(userIds);
 
   if (!loading && visible.length === 0) return null;
 
