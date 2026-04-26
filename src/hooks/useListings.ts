@@ -10,6 +10,17 @@ interface UseListingsOptions {
   searchQuery?: string;
   sortBy?: string;
   limit?: number;
+  /** When set, results are shuffled client-side; changing the value triggers reshuffle. */
+  shuffleSeed?: number | string;
+}
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 export function useListings(options: UseListingsOptions = {}) {
