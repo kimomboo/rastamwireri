@@ -10,6 +10,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/untyped-client";
 import { Loader2 } from "lucide-react";
 import { ImageUploader } from "./ImageUploader";
+import {
+  getSectionsForType,
+  findSection,
+  type ListingTypeScope,
+} from "@/lib/categories";
 
 interface ListingFormProps {
   listing?: any;
@@ -17,12 +22,6 @@ interface ListingFormProps {
   onCancel: () => void;
   shopId?: string;
 }
-
-const categories = {
-  product: ["Electronics", "Vehicles", "Fashion", "Home & Garden", "Sports", "Books", "Others"],
-  service: ["Home Services", "Professional Services", "Health & Fitness", "Events", "Education", "Technology", "Beauty"],
-  event: ["Music & Concerts", "Business", "Workshops", "Sports", "Arts & Culture", "Food & Drink", "Charity"],
-};
 
 export function ListingForm({ listing, onSuccess, onCancel, shopId }: ListingFormProps) {
   const { user } = useAuth();
