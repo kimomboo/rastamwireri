@@ -174,23 +174,11 @@ export default function Events() {
 
         {/* Grid */}
         {!isLoading && !error && listings.length > 0 && (
-          <div className="listing-grid">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                price={listing.price || undefined}
-                image={parseImages(listing.images)?.[0] || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=500&q=80"}
-                location={listing.location}
-                category="event"
-                isSponsored={listing.is_sponsored || false}
-                isFeatured={listing.is_featured || false}
-                isFree={listing.is_free || false}
-                eventDate={listing.event_date ? format(new Date(listing.event_date), "MMM d") : undefined}
-              />
-            ))}
-          </div>
+          <ListingsGridWithContacts
+            listings={listings}
+            category="event"
+            fallbackImage="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=500&q=80"
+          />
         )}
 
         {!isLoading && listings.length > 0 && (
