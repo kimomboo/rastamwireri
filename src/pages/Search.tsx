@@ -34,6 +34,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { CategoryFilter, type CategoryFilterValue } from "@/components/listings/CategoryFilter";
+import { findSection } from "@/lib/categories";
 
 interface Listing {
   id: string;
@@ -66,17 +68,8 @@ const LOCATIONS = [
   "Nyeri",
 ];
 
-const CATEGORIES = [
-  "All Categories",
-  "Electronics",
-  "Vehicles",
-  "Fashion",
-  "Home & Garden",
-  "Sports",
-  "Services",
-  "Events",
-  "Others",
-];
+// Category list now comes from src/lib/categories.ts via the CategoryFilter
+// component. Search supports section + category + subcategory cascading.
 
 export default function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
