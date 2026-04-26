@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { parseImages } from "@/lib/utils";
-import { ListingCard } from "@/components/listings/ListingCard";
+import { ListingsGridWithContacts } from "@/components/listings/ListingsGridWithContacts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -188,23 +188,11 @@ export default function Products() {
 
         {/* Grid */}
         {!isLoading && !error && listings.length > 0 && (
-          <div className="listing-grid">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                price={listing.price || undefined}
-                originalPrice={listing.original_price || undefined}
-                image={parseImages(listing.images)?.[0] || "https://images.unsplash.com/photo-1560472355-536de3962603?w=500&q=80"}
-                location={listing.location}
-                category="product"
-                isSponsored={listing.is_sponsored || false}
-                isFeatured={listing.is_featured || false}
-                isFree={listing.is_free || false}
-              />
-            ))}
-          </div>
+          <ListingsGridWithContacts
+            listings={listings}
+            category="product"
+            fallbackImage="https://images.unsplash.com/photo-1560472355-536de3962603?w=500&q=80"
+          />
         )}
 
         {/* Load More */}
