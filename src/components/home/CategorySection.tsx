@@ -97,50 +97,26 @@ export function CategorySection() {
           </div>
         </div>
 
-        {/* Main Category Cards - 2x2 on mobile, 4 cols on desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+        {/* Compact main category tiles — logo + name only */}
+        <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-10 max-w-2xl mx-auto">
           {mainCategories.map((category) => (
-              <Link
-                key={category.id}
-                to={category.href}
-                className="group relative overflow-hidden rounded-2xl p-4 md:p-6 lg:p-8 transition-all duration-300 hover:-translate-y-1"
-              >
-                {/* Background Gradient */}
-                <div className={cn(
-                  "absolute inset-0 bg-gradient-to-br opacity-90 transition-opacity group-hover:opacity-100",
-                  category.gradient
-                )} />
-                
-                {/* Decorative Circle */}
-                <div className="absolute -right-8 -bottom-8 w-28 md:w-40 h-28 md:h-40 bg-white/10 rounded-full" />
-                
-                {/* Content */}
-                <div className="relative z-10 text-white">
-                  <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <img 
-                      src={category.logo} 
-                      alt={`SokoniArena ${category.title}`} 
-                      className="h-12 w-12 md:h-16 md:w-16 rounded-xl object-contain drop-shadow-lg" 
-                    />
-                    <span className="text-[10px] md:text-sm font-medium bg-white/20 px-2 md:px-3 py-0.5 md:py-1 rounded-full">
-                      {category.count}
-                    </span>
-                  </div>
-                  
-                  <h3 className="font-display text-lg md:text-2xl font-bold mb-1 md:mb-2">
-                    {category.title}
-                  </h3>
-                  <p className="text-white/80 text-xs md:text-base mb-3 md:mb-6 line-clamp-2">
-                    {category.description}
-                  </p>
-                  
-                  <div className="flex items-center gap-2 text-xs md:text-sm font-semibold group-hover:gap-3 transition-all">
-                    Explore Now
-                    <ArrowRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                  </div>
-                </div>
-              </Link>
-            ))}
+            <Link
+              key={category.id}
+              to={category.href}
+              className="group flex flex-col items-center gap-1.5 rounded-xl bg-card border border-border p-2 sm:p-3 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40 transition-all"
+              aria-label={`${category.title} — ${category.count}`}
+            >
+              <img
+                src={category.logo}
+                alt={`SokoniArena ${category.title}`}
+                className="h-9 w-9 sm:h-11 sm:w-11 object-contain drop-shadow-sm group-hover:scale-110 transition-transform"
+                loading="lazy"
+              />
+              <span className="font-semibold text-[11px] sm:text-sm text-foreground">
+                {category.title}
+              </span>
+            </Link>
+          ))}
         </div>
 
         {/* Sub Categories */}

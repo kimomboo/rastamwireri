@@ -13,13 +13,13 @@ const Index = () => {
   return (
     <Layout>
       <HeroSection />
-      <TrustSection />
       <TopShops />
       <FlashSales />
       <CategorySection />
       <PremiumShops />
       <FeaturedListings />
       <FeaturedShops />
+      <TrustSection />
       <CTASection />
     </Layout>
   );
