@@ -16,6 +16,7 @@ interface FavoriteWithListing {
   created_at: string;
   listings: {
     id: string;
+    user_id: string;
     title: string;
     price: number | null;
     original_price: number | null;
@@ -51,6 +52,7 @@ export default function Favorites() {
           created_at,
           listings (
             id,
+            user_id,
             title,
             price,
             original_price,
