@@ -126,7 +126,7 @@ export const FlashSales = memo(function FlashSales() {
           <div className="flex items-center flex-wrap gap-3">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-accent fill-accent" />
-              <h2 className="font-display text-2xl md:text-3xl font-bold">Flash Sales</h2>
+              <h2 className="font-display text-2xl md:text-3xl font-bold">Flash Deals</h2>
             </div>
             <span className="text-sm text-muted-foreground">Limited time offers — Don't miss out!</span>
           </div>
