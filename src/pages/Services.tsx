@@ -108,18 +108,7 @@ export default function Services() {
               />
             </div>
 
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CategoryFilter scope="service" value={filter} onChange={setFilter} />
 
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-full md:w-40">
@@ -132,11 +121,6 @@ export default function Services() {
                 <SelectItem value="rating">Highest Rated</SelectItem>
               </SelectContent>
             </Select>
-
-            <Button variant="outline">
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-            </Button>
           </div>
         </div>
       </div>
@@ -170,7 +154,7 @@ export default function Services() {
             <p className="text-muted-foreground mb-4">No services found matching your criteria.</p>
             <Button variant="outline" onClick={() => {
               setSearchQuery("");
-              setSelectedCategory("All Categories");
+              setFilter({ section: "", category: "", subcategory: "" });
             }}>
               Clear Filters
             </Button>
