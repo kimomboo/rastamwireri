@@ -106,15 +106,15 @@ export default function ListingDetail() {
     // Fetch seller profile with phone/whatsapp
     const { data: profile } = await supabase
       .from("profiles")
-      .select("username, display_name, avatar_url, is_verified, created_at, phone_number")
+      .select("display_name, created_at, phone_number")
       .eq("user_id", data.user_id)
       .maybeSingle();
 
     if (profile) {
       setSeller({
-        username: (profile as any).display_name || (profile as any).username || "Seller",
-        avatar_url: (profile as any).avatar_url ?? null,
-        is_verified: (profile as any).is_verified ?? null,
+        username: (profile as any).display_name || "Seller",
+        avatar_url: null,
+        is_verified: null,
         created_at: (profile as any).created_at,
         phone: (profile as any).phone_number ?? null,
         whatsapp: (profile as any).phone_number ?? null,
