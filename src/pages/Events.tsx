@@ -10,41 +10,46 @@ import { Search, SlidersHorizontal, Loader2, Sparkles } from "lucide-react";
 import "@/styles/featured-shops.css";
 import { useListings } from "@/hooks/useListings";
 import categoryEvents from "@/assets/category-events.png";
-
-
-const categories = [
-  "All Events",
-  "Music & Concerts",
-  "Business & Networking",
-  "Workshops & Classes",
-  "Sports & Fitness",
-  "Arts & Culture",
-  "Food & Drink",
-  "Charity & Causes",
-  "Entertainment",
-];
+import { CategoryFilter, type CategoryFilterValue } from "@/components/listings/CategoryFilter";
+import { findSection } from "@/lib/categories";
 
 export default function Events() {
   const [searchParams] = useSearchParams();
-  const categoryFromUrl = searchParams.get("category");
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All Events");
+  const [filter, setFilter] = useState<CategoryFilterValue>(() => {
+    const sectionParam = searchParams.get("section") || "";
+    const categoryParam = searchParams.get("category") || "";
+    const sectionFromCategory = !sectionParam && categoryParam
+      ? findSection(categoryParam.toLowerCase())?.slug || ""
+      : "";
+    return {
+      section: sectionParam || sectionFromCategory,
+      category: sectionFromCategory ? "" : categoryParam,
+      subcategory: searchParams.get("subcategory") || "",
+    };
+  });
   const [sortBy, setSortBy] = useState("date");
 
   useEffect(() => {
-    if (categoryFromUrl) {
-      const matched = categories.find(
-        (c) => c.toLowerCase() === categoryFromUrl.toLowerCase()
-      );
-      if (matched) setSelectedCategory(matched);
-    }
-  }, [categoryFromUrl]);
+    const sectionParam = searchParams.get("section") || "";
+    const categoryParam = searchParams.get("category") || "";
+    const sectionFromCategory = !sectionParam && categoryParam
+      ? findSection(categoryParam.toLowerCase())?.slug || ""
+      : "";
+    setFilter({
+      section: sectionParam || sectionFromCategory,
+      category: sectionFromCategory ? "" : categoryParam,
+      subcategory: searchParams.get("subcategory") || "",
+    });
+  }, [searchParams]);
 
   const [pageSeed] = useState(() => Math.random());
   const { listings, isLoading, error } = useListings({
     type: "event",
-    category: selectedCategory,
+    section: filter.section,
+    category: filter.category,
+    subcategory: filter.subcategory,
     searchQuery,
     sortBy,
     shuffleSeed: sortBy === "newest" ? pageSeed : undefined,
