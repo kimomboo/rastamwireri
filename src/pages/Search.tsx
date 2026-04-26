@@ -277,21 +277,10 @@ export default function Search() {
         </Select>
       </div>
 
-      {/* Category */}
+      {/* Cascading category filter */}
       <div className="space-y-2">
         <Label>Category</Label>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {CATEGORIES.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <CategoryFilter scope="all" value={filter} onChange={setFilter} compact={false} />
       </div>
 
       {/* Price Range */}
